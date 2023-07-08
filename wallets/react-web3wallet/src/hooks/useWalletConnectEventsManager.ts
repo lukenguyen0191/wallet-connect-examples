@@ -1,6 +1,7 @@
 import { COSMOS_SIGNING_METHODS } from '@/data/COSMOSData'
 import { EIP155_SIGNING_METHODS } from '@/data/EIP155Data'
 import { SOLANA_SIGNING_METHODS } from '@/data/SolanaData'
+import { WAX_SIGNING_METHODS } from '@/data/WAXData'
 import { POLKADOT_SIGNING_METHODS } from '@/data/PolkadotData'
 import { MULTIVERSX_SIGNING_METHODS } from '@/data/MultiversxData'
 import ModalStore from '@/store/ModalStore'
@@ -58,6 +59,12 @@ export default function useWalletConnectEventsManager(initialized: boolean) {
         case SOLANA_SIGNING_METHODS.SOLANA_SIGN_MESSAGE:
         case SOLANA_SIGNING_METHODS.SOLANA_SIGN_TRANSACTION:
           return ModalStore.open('SessionSignSolanaModal', { requestEvent, requestSession })
+        
+        case WAX_SIGNING_METHODS.WAX_SIGN_TRANSACTION:
+        case WAX_SIGNING_METHODS.WAX_PUSH_TRANSACTION:
+        case WAX_SIGNING_METHODS.WAX_SIGN_PUSH_TRANSACTION:
+        case WAX_SIGNING_METHODS.WAX_SIGN_MESSAGE:
+          return ModalStore.open('SessionSignWAXModal', { requestEvent, requestSession})
 
         case POLKADOT_SIGNING_METHODS.POLKADOT_SIGN_MESSAGE:
         case POLKADOT_SIGNING_METHODS.POLKADOT_SIGN_TRANSACTION:

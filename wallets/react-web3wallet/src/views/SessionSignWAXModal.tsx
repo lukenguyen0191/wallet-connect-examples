@@ -4,12 +4,12 @@ import RequestDetailsCard from '@/components/RequestDetailsCard'
 import RequestMethodCard from '@/components/RequestMethodCard'
 import RequestModalContainer from '@/components/RequestModalContainer'
 import ModalStore from '@/store/ModalStore'
-import { approveSolanaRequest, rejectSolanaRequest } from '@/utils/SolanaRequestHandlerUtil'
+import { approveWAXRequest, rejectWAXRequest } from '@/utils/WAXRequestHandlerUtil'
 import { web3wallet } from '@/utils/WalletConnectUtil'
 import { Button, Divider, Modal, Text } from '@nextui-org/react'
 import { Fragment } from 'react'
 
-export default function SessionSignSolanaModal() {
+export default function SessionSignWAXModal() {
   // Get request and wallet data from store
   const requestEvent = ModalStore.state.data?.requestEvent
   const requestSession = ModalStore.state.data?.requestSession
@@ -26,7 +26,7 @@ export default function SessionSignSolanaModal() {
   // Handle approve action (logic varies based on request method)
   async function onApprove() {
     if (requestEvent) {
-      const response = await approveSolanaRequest(requestEvent)
+      const response = await approveWAXRequest(requestEvent)
       await web3wallet.respondSessionRequest({
         topic,
         response
@@ -38,7 +38,7 @@ export default function SessionSignSolanaModal() {
   // Handle reject action
   async function onReject() {
     if (requestEvent) {
-      const response = rejectSolanaRequest(requestEvent)
+      const response = rejectWAXRequest(requestEvent)
       await web3wallet.respondSessionRequest({
         topic,
         response

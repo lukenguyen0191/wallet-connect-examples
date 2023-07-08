@@ -1,5 +1,5 @@
 import ProjectInfoCard from '@/components/ProjectInfoCard'
-import RequesDetailsCard from '@/components/RequestDetalilsCard'
+import RequestDetailsCard from '@/components/RequestDetailsCard'
 import RequestMethodCard from '@/components/RequestMethodCard'
 import RequestModalContainer from '@/components/RequestModalContainer'
 import ModalStore from '@/store/ModalStore'
@@ -57,7 +57,7 @@ export default function SessionSignModal() {
 
         <Divider y={2} />
 
-        <RequesDetailsCard chains={[chainId ?? '']} protocol={requestSession.relay.protocol} />
+        <RequestDetailsCard chains={[chainId ?? '']} protocol={requestSession.relay.protocol} />
 
         <Divider y={2} />
 

@@ -9,6 +9,7 @@ interface State {
   eip155Address: string
   cosmosAddress: string
   solanaAddress: string
+  waxAccount: string
   polkadotAddress: string
   nearAddress: string
   multiversxAddress: string
@@ -24,6 +25,7 @@ const state = proxy<State>({
   eip155Address: '',
   cosmosAddress: '',
   solanaAddress: '',
+  waxAccount: '',
   polkadotAddress: '',
   nearAddress: '',
   multiversxAddress: '',
@@ -50,6 +52,10 @@ const SettingsStore = {
 
   setSolanaAddress(solanaAddress: string) {
     state.solanaAddress = solanaAddress
+  },
+
+  setWAXAccount(waxAccount: string) {
+    state.waxAccount = waxAccount;
   },
 
   setPolkadotAddress(polkadotAddress: string) {

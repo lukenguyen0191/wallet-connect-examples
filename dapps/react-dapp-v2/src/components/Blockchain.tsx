@@ -150,7 +150,7 @@ const Blockchain: FC<PropsWithChildren<BlockchainProps>> = (
           <img src={chain.meta.logo} alt={name} />
           <p>{name}</p>
         </SChain>
-        {!!address && <p>{ellipseAddress(address)}</p>}
+        {!!address && <p>{ellipseAddress(address, chainId)}</p>}
         <SBlockchainChildrenContainer>
           {fetching ? (
             <Column center>
@@ -166,7 +166,7 @@ const Blockchain: FC<PropsWithChildren<BlockchainProps>> = (
                   <Column center>
                     {assets.map((asset) =>
                       asset.symbol ? (
-                        <Asset key={asset.symbol} asset={asset} />
+                        <Asset key={asset.symbol} asset={asset} decimals={chainId.includes("wax") ? 8 : undefined}/>
                       ) : null
                     )}
                   </Column>

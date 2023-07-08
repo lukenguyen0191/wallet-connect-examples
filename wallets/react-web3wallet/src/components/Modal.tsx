@@ -6,6 +6,7 @@ import SessionRequestModal from '@/views/SessionSignModal'
 import SessionSignNearModal from '@/views/SessionSignNearModal'
 import SessionSignPolkadotModal from '@/views/SessionSignPolkadotModal'
 import SessionSignSolanaModal from '@/views/SessionSignSolanaModal'
+import SessionSignWAXModal from '@/views/SessionSignWAXModal'
 import SessionSignMultiversxModal from '@/views/SessionSignMultiversxModal'
 import SessionSignTypedDataModal from '@/views/SessionSignTypedDataModal'
 import SessionUnsuportedMethodModal from '@/views/SessionUnsuportedMethodModal'
@@ -25,6 +26,7 @@ export default function Modal() {
       {view === 'SessionUnsuportedMethodModal' && <SessionUnsuportedMethodModal />}
       {view === 'SessionSignCosmosModal' && <SessionSignCosmosModal />}
       {view === 'SessionSignSolanaModal' && <SessionSignSolanaModal />}
+      {view === 'SessionSignWAXModal' && <SessionSignWAXModal />}
       {view === 'SessionSignPolkadotModal' && <SessionSignPolkadotModal />}
       {view === 'SessionSignNearModal' && <SessionSignNearModal />}
       {view === 'SessionSignMultiversxModal' && <SessionSignMultiversxModal />}

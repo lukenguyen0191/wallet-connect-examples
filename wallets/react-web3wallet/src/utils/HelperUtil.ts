@@ -97,6 +97,10 @@ export function isSolanaChain(chain: string) {
   return chain.includes('solana')
 }
 
+export function isWAXChain(chain: string) {
+  return chain.includes('wax')
+}
+
 /**
  * Check if chain is part of POLKADOT standard
  */

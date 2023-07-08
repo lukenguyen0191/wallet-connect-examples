@@ -15,6 +15,7 @@ export const DEFAULT_MAIN_CHAINS = [
   "mvx:1",
   "tron:0x2b6653dc",
   "tezos:mainnet",
+  "wax:1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4"
 ];
 
 export const DEFAULT_TEST_CHAINS = [
@@ -30,6 +31,7 @@ export const DEFAULT_TEST_CHAINS = [
   "mvx:D",
   "tron:0xcd8690dc",
   "tezos:testnet",
+  "wax:e0b5f2532f0f4fcc4da2fc440943131b2f041f5c522c09e9f2fd0b8ba74ef5b6"
 ];
 
 export const DEFAULT_CHAINS = [...DEFAULT_MAIN_CHAINS, ...DEFAULT_TEST_CHAINS];
@@ -138,6 +140,15 @@ export enum DEFAULT_TEZOS_METHODS {
 }
 
 export enum DEFAULT_TEZOS_EVENTS {}
+
+export enum DEFAULT_WAX_METHODS {
+  WAX_SIGN_TRANSACTION = "wax_sign_transaction",
+  WAX_SIGN_MESSAGE = "wax_sign_message",
+  WAX_PUSH_TRANSACTION = "wax_push_transaction",
+  WAX_SIGN_PUSH_TRANSACTION = "wax_sign_push_transaction",
+}
+
+export enum DEFAULT_WAX_EVENTS {}
 
 export const DEFAULT_GITHUB_REPO_URL =
   "https://github.com/WalletConnect/web-examples/tree/main/dapps/react-dapp-v2";

@@ -18,6 +18,7 @@ import {
   DEFAULT_NEAR_METHODS,
   DEFAULT_TRON_METHODS,
   DEFAULT_TEZOS_METHODS,
+  DEFAULT_WAX_METHODS,
 } from "../constants";
 import { AccountAction, setLocaleStorageTestnetFlag } from "../helpers";
 import Toggle from "../components/Toggle";
@@ -64,6 +65,7 @@ const Home: NextPage = () => {
     isInitializing,
     setChains,
     setRelayerRegion,
+    getAccountBalances
   } = useWalletConnectClient();
 
   // Use `JsonRpcContext` to provide us with relevant RPC methods and states.
@@ -72,6 +74,7 @@ const Home: NextPage = () => {
     ethereumRpc,
     cosmosRpc,
     solanaRpc,
+    waxRpc,
     polkadotRpc,
     nearRpc,
     multiversxRpc,
@@ -81,6 +84,7 @@ const Home: NextPage = () => {
     rpcResult,
     isTestnet,
     setIsTestnet,
+    signTxRes
   } = useJsonRpc();
 
   const { chainData } = useChainData();
@@ -206,6 +210,46 @@ const Home: NextPage = () => {
       {
         method: DEFAULT_SOLANA_METHODS.SOL_SIGN_MESSAGE,
         callback: onSignMessage,
+      },
+    ];
+  };
+
+  const getWAXActions = (): AccountAction[] => {
+    const onSignTransaction = async (chainId: string, account: string) => {
+      openRequestModal();
+      await waxRpc.testSignTransaction(chainId, account);
+    };
+    const onSignMessage = async (chainId: string, account: string) => {
+      openRequestModal();
+      await waxRpc.testSignMessage(chainId, account);
+    };
+    const onPushTransaction = async (chainId: string, account: string) => {
+      const { signatures, serializedTransaction, serializedContextFreeData } = JSON.parse(signTxRes!.result);
+      openRequestModal();
+      await waxRpc.testPushTransaction(chainId, account, signatures, serializedTransaction, serializedContextFreeData);
+      getAccountBalances(accounts);
+    };
+    const onSignAndPushTransaction = async (chainId: string, account: string) => {
+      openRequestModal();
+      await waxRpc.testSignAndPushTransaction(chainId, account);
+      getAccountBalances(accounts);
+    };
+    return [
+      {
+        method: DEFAULT_WAX_METHODS.WAX_SIGN_TRANSACTION,
+        callback: onSignTransaction,
+      },
+      {
+        method: DEFAULT_WAX_METHODS.WAX_SIGN_MESSAGE,
+        callback: onSignMessage,
+      },
+      {
+        method: DEFAULT_WAX_METHODS.WAX_PUSH_TRANSACTION,
+        callback: onPushTransaction,
+      },
+      {
+        method: DEFAULT_WAX_METHODS.WAX_SIGN_PUSH_TRANSACTION,
+        callback: onSignAndPushTransaction,
       },
     ];
   };
@@ -356,6 +400,8 @@ const Home: NextPage = () => {
         return getTronActions();
       case "tezos":
         return getTezosActions();
+      case "wax":
+        return getWAXActions();
       default:
         break;
     }

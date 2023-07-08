@@ -36,7 +36,8 @@ export function ellipseText(text = "", maxLength = 9999): string {
   return result;
 }
 
-export function ellipseAddress(address = "", width = 10): string {
+export function ellipseAddress(address = "", chainId: string, width = 10): string {
+  if (chainId.includes("wax")) return address;
   return `${address.slice(0, width)}...${address.slice(-width)}`;
 }
 

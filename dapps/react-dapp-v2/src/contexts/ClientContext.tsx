@@ -43,6 +43,7 @@ interface IContext {
   isFetchingBalances: boolean;
   setChains: any;
   setRelayerRegion: any;
+  getAccountBalances: (_accounts: string[]) => Promise<void>;
 }
 
 /**
@@ -92,29 +93,33 @@ export function ClientContextProvider({
     setRelayerRegion(DEFAULT_RELAY_URL!);
   };
 
-  const getAccountBalances = async (_accounts: string[]) => {
-    setIsFetchingBalances(true);
-    try {
-      const arr = await Promise.all(
-        _accounts.map(async (account) => {
-          const [namespace, reference, address] = account.split(":");
-          const chainId = `${namespace}:${reference}`;
-          const assets = await apiGetAccountBalance(address, chainId);
-          return { account, assets: [assets] };
-        })
-      );
+  const getAccountBalances = useCallback(
+    async (_accounts: string[]) => {
+      setIsFetchingBalances(true);
+      try {
+        const arr = await Promise.all(
+          _accounts.map(async (account) => {
+            const [namespace, reference, address] = account.split(":");
+            const chainId = `${namespace}:${reference}`;
+            const assets = await apiGetAccountBalance(address, chainId);
+            return { account, assets: [assets] };
+          })
+        );
 
-      const balances: AccountBalances = {};
-      arr.forEach(({ account, assets }) => {
-        balances[account] = assets;
-      });
-      setBalances(balances);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsFetchingBalances(false);
-    }
-  };
+        const balances: AccountBalances = {};
+        arr.forEach(({ account, assets }) => {
+          balances[account] = assets;
+        });
+        console.log({balances});
+        setBalances(balances);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsFetchingBalances(false);
+      }
+    },
+    []
+  );
 
   const onSessionConnected = useCallback(
     async (_session: SessionTypes.Struct) => {
@@ -129,7 +134,7 @@ export function ClientContextProvider({
       setSolanaPublicKeys(getPublicKeysFromAccounts(allNamespaceAccounts));
       await getAccountBalances(allNamespaceAccounts);
     },
-    []
+    [getAccountBalances]
   );
 
   const connect = useCallback(
@@ -318,6 +323,7 @@ export function ClientContextProvider({
       disconnect,
       setChains,
       setRelayerRegion,
+      getAccountBalances,
     }),
     [
       pairings,
@@ -334,6 +340,7 @@ export function ClientContextProvider({
       disconnect,
       setChains,
       setRelayerRegion,
+      getAccountBalances,
     ]
   );
 

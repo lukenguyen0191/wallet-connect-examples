@@ -92,6 +92,17 @@ export const rpcProvidersByChainId: Record<number, any> = {
   },
 };
 
+export const waxRpcProviders: Record<string, any> = {
+  "e0b5f2532f0f4fcc4da2fc440943131b2f041f5c522c09e9f2fd0b8ba74ef5b6": {
+    name: "WAX Testnet",
+    baseURL: "https://stg2-history.thh.io/v1/chain",
+    token: {
+      name: "WAX Token",
+      symbol: "WAX",
+    },
+  }
+}
+
 const api: AxiosInstance = axios.create({
   baseURL: "https://ethereum-api.xyz",
   timeout: 10000, // 10 secs
@@ -106,6 +117,24 @@ export async function apiGetAccountBalance(
   chainId: string
 ): Promise<AssetData> {
   const namespace = chainId.split(":")[0];
+  if (namespace === "wax") {
+    const waxChainId = chainId.split(":")[1];
+    const rpc = waxRpcProviders[waxChainId];
+    if (!rpc) {
+      return { balance: "", symbol: "", name: "" };
+    }
+
+    const { baseURL, token } = rpc;
+    const response = await api.post(`${baseURL}/get_account`, {
+      account_name: address
+    });
+
+    let balance = response.data.core_liquid_balance;
+    balance = balance.split(" ")[0].replace(".", "");
+
+    return { balance, ...token };
+  }
+
   if (namespace !== "eip155") {
     return { balance: "", symbol: "", name: "" };
   }

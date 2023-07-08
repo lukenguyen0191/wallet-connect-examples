@@ -8,6 +8,7 @@ import * as near from "./near";
 import * as multiversx from "./multiversx";
 import * as tron from "./tron";
 import * as tezos from "./tezos";
+import * as wax from "./wax";
 
 import { ChainMetadata, ChainRequestRender } from "../helpers";
 
@@ -30,6 +31,8 @@ export function getChainMetadata(chainId: string): ChainMetadata {
       return tron.getChainMetadata(chainId);
     case "tezos":
       return tezos.getChainMetadata(chainId);
+    case "wax":
+      return wax.getChainMetadata(chainId);
     default:
       throw new Error(`No metadata handler for namespace ${namespace}`);
   }

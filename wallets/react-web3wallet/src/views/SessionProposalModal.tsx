@@ -7,21 +7,23 @@ import { cosmosAddresses } from '@/utils/CosmosWalletUtil'
 import { eip155Addresses } from '@/utils/EIP155WalletUtil'
 import { polkadotAddresses } from '@/utils/PolkadotWalletUtil'
 import { multiversxAddresses } from '@/utils/MultiversxWalletUtil'
+import { solanaAddresses } from '@/utils/SolanaWalletUtil'
+import { nearAddresses } from '@/utils/NearWalletUtil'
+import { waxAccounts } from '@/utils/WAXWalletUtil'
 import {
   isCosmosChain,
   isEIP155Chain,
   isSolanaChain,
+  isWAXChain,
   isPolkadotChain,
   isNearChain,
   isMultiversxChain
 } from '@/utils/HelperUtil'
-import { solanaAddresses } from '@/utils/SolanaWalletUtil'
 import { web3wallet } from '@/utils/WalletConnectUtil'
 import { Button, Divider, Modal, Text } from '@nextui-org/react'
 import { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { Fragment, useState } from 'react'
-import { nearAddresses } from '@/utils/NearWalletUtil'
 
 export default function SessionProposalModal() {
   const [selectedAccounts, setSelectedAccounts] = useState<Record<string, string[]>>({})
@@ -38,6 +40,7 @@ export default function SessionProposalModal() {
   // Get required proposal data
   const { id, params } = proposal
   const { proposer, requiredNamespaces, relays } = params
+  console.log({id, params, requiredNamespace: requiredNamespaces['wax'], relays})
 
   // Add / remove address from EIP155 selection
   function onSelectAccount(chain: string, account: string) {
@@ -116,6 +119,15 @@ export default function SessionProposalModal() {
       return (
         <ProposalSelectSection
           addresses={solanaAddresses}
+          selectedAddresses={selectedAccounts[chain]}
+          onSelect={onSelectAccount}
+          chain={chain}
+        />
+      )
+    } else if (isWAXChain(chain)) {
+      return (
+        <ProposalSelectSection
+          addresses={waxAccounts}
           selectedAddresses={selectedAccounts[chain]}
           onSelect={onSelectAccount}
           chain={chain}

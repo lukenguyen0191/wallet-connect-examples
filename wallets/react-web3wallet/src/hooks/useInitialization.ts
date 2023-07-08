@@ -8,6 +8,7 @@ import { createWeb3Wallet } from '@/utils/WalletConnectUtil'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSnapshot } from 'valtio'
 import { createOrRestoreNearWallet } from '@/utils/NearWalletUtil'
+import { createOrRestoreWAXWallet } from '@/utils/WAXWalletUtil'
 
 export default function useInitialization() {
   const [initialized, setInitialized] = useState(false)
@@ -20,6 +21,7 @@ export default function useInitialization() {
       const { eip155Addresses } = createOrRestoreEIP155Wallet()
       const { cosmosAddresses } = await createOrRestoreCosmosWallet()
       const { solanaAddresses } = await createOrRestoreSolanaWallet()
+      const { waxAccounts } = await createOrRestoreWAXWallet()
       const { polkadotAddresses } = await createOrRestorePolkadotWallet()
       const { nearAddresses } = await createOrRestoreNearWallet()
       const { multiversxAddresses } = await createOrRestoreMultiversxWallet()
@@ -27,6 +29,7 @@ export default function useInitialization() {
       SettingsStore.setEIP155Address(eip155Addresses[0])
       SettingsStore.setCosmosAddress(cosmosAddresses[0])
       SettingsStore.setSolanaAddress(solanaAddresses[0])
+      SettingsStore.setWAXAccount(waxAccounts[0])
       SettingsStore.setPolkadotAddress(polkadotAddresses[0])
       SettingsStore.setNearAddress(nearAddresses[0])
       SettingsStore.setMultiversxAddress(multiversxAddresses[0])

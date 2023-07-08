@@ -45,6 +45,8 @@ function getAssetIcon(asset: AssetData): JSX.Element {
       return <Icon src={xdai} />;
     case "matic":
       return <Icon src={matic} />;
+    case "wax":
+      return <Icon src={"/assets/wax-logo.jpg"}/>
     default:
       return <Icon src={"/assets/eth20.svg"} />;
   }
@@ -52,10 +54,11 @@ function getAssetIcon(asset: AssetData): JSX.Element {
 
 interface AssetProps {
   asset: AssetData;
+  decimals?: number;
 }
 
 const Asset = (props: AssetProps) => {
-  const { asset } = props;
+  const { asset, decimals } = props;
   return (
     <SAsset {...props}>
       <SAssetLeft>
@@ -63,7 +66,7 @@ const Asset = (props: AssetProps) => {
         <SAssetName>{asset.name}</SAssetName>
       </SAssetLeft>
       <SAssetRight>
-        <SAssetBalance>{`${fromWad(asset.balance || "0")} ${
+        <SAssetBalance>{`${fromWad(asset.balance || "0", decimals)} ${
           asset.symbol
         }`}</SAssetBalance>
       </SAssetRight>

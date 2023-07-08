@@ -7,8 +7,8 @@ export type TWAXChain = keyof typeof WAX_MAINNET_CHAINS
  * Chains
  */
 export const WAX_MAINNET_CHAINS = {
-  'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ': {
-    chainId: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ',
+  'wax:1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4': {
+    chainId: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4',
     name: 'WAX Mainnet',
     logo: '/chain-logos/solana-4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ.png',
     rgb: '30, 240, 166',
@@ -17,8 +17,8 @@ export const WAX_MAINNET_CHAINS = {
 }
 
 export const WAX_TEST_CHAINS = {
-  'solana:8E9rvCKLFQia2Y35HXjjpWzj8weVo44K': {
-    chainId: '8E9rvCKLFQia2Y35HXjjpWzj8weVo44K',
+  'wax:e0b5f2532f0f4fcc4da2fc440943131b2f041f5c522c09e9f2fd0b8ba74ef5b6': {
+    chainId: 'e0b5f2532f0f4fcc4da2fc440943131b2f041f5c522c09e9f2fd0b8ba74ef5b6',
     name: 'WAX Testnet',
     logo: '/chain-logos/solana-4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ.png',
     rgb: '30, 240, 166',
@@ -32,6 +32,8 @@ export const WAX_CHAINS = { ...WAX_MAINNET_CHAINS, ...WAX_TEST_CHAINS }
  * Methods
  */
 export const WAX_SIGNING_METHODS = {
-  WAX_SIGN_TRANSACTION: 'wax_signTransaction',
-  WAX_SIGN_MESSAGE: 'wax_signMessage'
+  WAX_SIGN_TRANSACTION: 'wax_sign_transaction',
+  WAX_SIGN_MESSAGE: 'wax_sign_message',
+  WAX_PUSH_TRANSACTION: 'wax_push_transaction',
+  WAX_SIGN_PUSH_TRANSACTION: 'wax_sign_push_transaction'
 }

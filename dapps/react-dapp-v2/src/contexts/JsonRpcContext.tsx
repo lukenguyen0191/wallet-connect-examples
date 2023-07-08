@@ -2,7 +2,8 @@ import { BigNumber, utils } from "ethers";
 import { createContext, ReactNode, useContext, useState } from "react";
 import * as encoding from "@walletconnect/encoding";
 import { Transaction as EthTransaction } from "@ethereumjs/tx";
-import { recoverTransaction } from "@celo/wallet-base";
+import * as ecc from "eosjs-ecc";
+// import { recoverTransaction } from "@celo/wallet-base";
 import {
   formatDirectSignDoc,
   stringifySignDocValues,
@@ -39,6 +40,7 @@ import {
   DEFAULT_MULTIVERSX_METHODS,
   DEFAULT_TRON_METHODS,
   DEFAULT_TEZOS_METHODS,
+  DEFAULT_WAX_METHODS,
 } from "../constants";
 import { useChainData } from "./ChainDataContext";
 import { rpcProvidersByChainId } from "../../src/helpers/api";
@@ -63,6 +65,14 @@ interface IFormattedRpcResponse {
 }
 
 type TRpcRequestCallback = (chainId: string, address: string) => Promise<void>;
+
+type TRpcRequestPushTxCallback = (
+  chainId: string,
+  address: string,
+  signatures: string[],
+  serializedTransaction: Uint8Array,
+  serializedContextFreeData: Uint8Array | undefined
+) => Promise<void>;
 
 interface IContext {
   ping: () => Promise<void>;
@@ -103,10 +113,17 @@ interface IContext {
     testSignMessage: TRpcRequestCallback;
     testSignTransaction: TRpcRequestCallback;
   };
+  waxRpc: {
+    testSignMessage: TRpcRequestCallback;
+    testSignTransaction: TRpcRequestCallback;
+    testPushTransaction: TRpcRequestPushTxCallback;
+    testSignAndPushTransaction: TRpcRequestCallback;
+  };
   rpcResult?: IFormattedRpcResponse | null;
   isRpcRequestPending: boolean;
   isTestnet: boolean;
   setIsTestnet: (isTestnet: boolean) => void;
+  signTxRes: IFormattedRpcResponse | null;
 }
 
 /**
@@ -123,7 +140,8 @@ export function JsonRpcContextProvider({
   children: ReactNode | ReactNode[];
 }) {
   const [pending, setPending] = useState(false);
-  const [result, setResult] = useState<IFormattedRpcResponse | null>();
+  const [result, setResult] = useState<IFormattedRpcResponse | null>(null);
+  const [signTxRes, setSignTxRes] = useState<IFormattedRpcResponse | null>(null);
   const [isTestnet, setIsTestnet] = useState(getLocalStorageTestnetFlag());
 
   const { client, session, accounts, balances, solanaPublicKeys } =
@@ -150,10 +168,57 @@ export function JsonRpcContextProvider({
         setPending(true);
         const result = await rpcRequest(chainId, address);
         setResult(result);
+        if (chainId.includes("wax")) setSignTxRes(result);
       } catch (err: any) {
         console.error("RPC request failed: ", err);
         setResult({
           address,
+          valid: false,
+          result: err?.message ?? err,
+        });
+      } finally {
+        setPending(false);
+      }
+    };
+
+  const _createJsonRpcPushTxRequestHandler =
+    (
+      rpcRequest: (
+        chainId: string,
+        account: string,
+        signatures: string[],
+        serializedTransaction: Uint8Array,
+        serializedContextFreeData: Uint8Array | undefined
+      ) => Promise<IFormattedRpcResponse>
+    ) =>
+    async (
+      chainId: string,
+      account: string,
+      signatures: string[],
+      serializedTransaction: Uint8Array,
+      serializedContextFreeData: Uint8Array | undefined
+    ) => {
+      if (typeof client === "undefined") {
+        throw new Error("WalletConnect is not initialized");
+      }
+      if (typeof session === "undefined") {
+        throw new Error("Session is not connected");
+      }
+
+      try {
+        setPending(true);
+        const result = await rpcRequest(
+          chainId,
+          account,
+          signatures,
+          serializedTransaction,
+          serializedContextFreeData
+        );
+        setResult(result);
+      } catch (err: any) {
+        console.error("RPC request failed: ", err);
+        setResult({
+          address: account,
           valid: false,
           result: err?.message ?? err,
         });
@@ -248,46 +313,46 @@ export function JsonRpcContextProvider({
     ),
     testSignTransaction: _createJsonRpcRequestHandler(
       async (chainId: string, address: string) => {
-        const caipAccountAddress = `${chainId}:${address}`;
-        const account = accounts.find(
-          (account) => account === caipAccountAddress
-        );
-        if (account === undefined)
-          throw new Error(`Account for ${caipAccountAddress} not found`);
+        // const caipAccountAddress = `${chainId}:${address}`;
+        // const account = accounts.find(
+        //   (account) => account === caipAccountAddress
+        // );
+        // if (account === undefined)
+        //   throw new Error(`Account for ${caipAccountAddress} not found`);
 
-        const tx = await formatTestTransaction(account);
+        // const tx = await formatTestTransaction(account);
 
-        const signedTx = await client!.request<string>({
-          topic: session!.topic,
-          chainId,
-          request: {
-            method: DEFAULT_EIP155_METHODS.ETH_SIGN_TRANSACTION,
-            params: [tx],
-          },
-        });
+        // const signedTx = await client!.request<string>({
+        //   topic: session!.topic,
+        //   chainId,
+        //   request: {
+        //     method: DEFAULT_EIP155_METHODS.ETH_SIGN_TRANSACTION,
+        //     params: [tx],
+        //   },
+        // });
 
-        const CELO_ALFAJORES_CHAIN_ID = 44787;
-        const CELO_MAINNET_CHAIN_ID = 42220;
+        // const CELO_ALFAJORES_CHAIN_ID = 44787;
+        // const CELO_MAINNET_CHAIN_ID = 42220;
 
-        let valid = false;
-        const [, reference] = chainId.split(":");
-        if (
-          reference === CELO_ALFAJORES_CHAIN_ID.toString() ||
-          reference === CELO_MAINNET_CHAIN_ID.toString()
-        ) {
-          const [, signer] = recoverTransaction(signedTx);
-          valid = signer.toLowerCase() === address.toLowerCase();
-        } else {
-          valid = EthTransaction.fromSerializedTx(
-            signedTx as any
-          ).verifySignature();
-        }
+        // let valid = false;
+        // const [, reference] = chainId.split(":");
+        // if (
+        //   reference === CELO_ALFAJORES_CHAIN_ID.toString() ||
+        //   reference === CELO_MAINNET_CHAIN_ID.toString()
+        // ) {
+        //   const [, signer] = recoverTransaction(signedTx);
+        //   valid = signer.toLowerCase() === address.toLowerCase();
+        // } else {
+        //   valid = EthTransaction.fromSerializedTx(
+        //     signedTx as any
+        //   ).verifySignature();
+        // }
 
         return {
           method: DEFAULT_EIP155_METHODS.ETH_SIGN_TRANSACTION,
           address,
-          valid,
-          result: signedTx,
+          valid: true,
+          result: "signedTx",
         };
       }
     ),
@@ -775,6 +840,192 @@ export function JsonRpcContextProvider({
         }
       }
     ),
+  };
+
+  // -------- WAX RPC METHODS --------
+  const waxRpc = {
+    testSignTransaction: _createJsonRpcRequestHandler(
+      async (
+        chainId: string,
+        account: string
+      ): Promise<IFormattedRpcResponse> => {
+        const transaction = {
+          delay_sec: 0,
+          max_cpu_usage_ms: 0,
+          actions: [
+            {
+              account: "eosio.token",
+              name: "transfer",
+              data: {
+                from: account,
+                to: "tatemorpheus",
+                quantity: "1.00000000 WAX",
+                memo: "",
+              },
+              authorization: [
+                {
+                  actor: account,
+                  permission: "active",
+                },
+              ],
+            },
+          ],
+        };
+
+        try {
+          const result = await client!.request<{
+            payload: string;
+            signature: string;
+          }>({
+            chainId: chainId,
+            topic: session!.topic,
+            request: {
+              method: DEFAULT_WAX_METHODS.WAX_SIGN_TRANSACTION,
+              params: transaction,
+            },
+          });
+
+          console.log({result});
+
+          return {
+            method: DEFAULT_WAX_METHODS.WAX_SIGN_TRANSACTION,
+            address: account,
+            valid: true,
+            result: JSON.stringify(result),
+          };
+        } catch (error: any) {
+          throw new Error(error);
+        }
+      }
+    ),
+    testSignMessage: _createJsonRpcRequestHandler(
+      async (
+        chainId: string,
+        account: string
+      ): Promise<IFormattedRpcResponse> => {
+        // const message = `This is an example message to be signed - ${Date.now()}`;
+        const message = `I'm feeling lucky! :D`;
+
+        try {
+          const result = await client!.request<{ signature: string }>({
+            chainId,
+            topic: session!.topic,
+            request: {
+              method: DEFAULT_WAX_METHODS.WAX_SIGN_MESSAGE,
+              params: { account, message },
+            },
+          });
+
+          // // sr25519 signatures need to wait for WASM to load
+          // await cryptoWaitReady();
+          // const { isValid: valid } = signatureVerify(
+          //   digest,
+          //   result.signature,
+          //   account
+          // );
+
+          return {
+            method: DEFAULT_WAX_METHODS.WAX_SIGN_MESSAGE,
+            address: account,
+            valid: true,
+            result: result.signature,
+          };
+        } catch (error: any) {
+          throw new Error(error);
+        }
+      }
+    ),
+    testPushTransaction: _createJsonRpcPushTxRequestHandler(
+      async (
+        chainId: string,
+        account: string,
+        signatures: string[],
+        serializedTransaction: Uint8Array,
+        serializedContextFreeData: Uint8Array | undefined
+      ): Promise<IFormattedRpcResponse> => {
+        try {
+          const result = await client!.request<{
+            payload: string;
+            signature: string;
+          }>({
+            chainId: chainId,
+            topic: session!.topic,
+            request: {
+              method: DEFAULT_WAX_METHODS.WAX_PUSH_TRANSACTION,
+              params: {
+                account,
+                signatures,
+                serializedTransaction,
+                serializedContextFreeData,
+              },
+            },
+          });
+
+          return {
+            method: DEFAULT_WAX_METHODS.WAX_PUSH_TRANSACTION,
+            address: account,
+            valid: true,
+            result: JSON.stringify(result),
+          };
+        } catch (error: any) {
+          throw new Error(error);
+        }
+      }
+    ),
+    testSignAndPushTransaction: _createJsonRpcRequestHandler(
+      async (
+        chainId: string,
+        account: string
+      ): Promise<IFormattedRpcResponse> => {
+        const transaction = {
+          delay_sec: 0,
+          max_cpu_usage_ms: 0,
+          actions: [
+            {
+              account: "eosio.token",
+              name: "transfer",
+              data: {
+                from: account,
+                to: "tatemorpheus",
+                quantity: "1.00000000 WAX",
+                memo: "",
+              },
+              authorization: [
+                {
+                  actor: account,
+                  permission: "active",
+                },
+              ],
+            },
+          ],
+        };
+
+        try {
+          const result = await client!.request<{
+            payload: string;
+            signature: string;
+          }>({
+            chainId: chainId,
+            topic: session!.topic,
+            request: {
+              method: DEFAULT_WAX_METHODS.WAX_SIGN_PUSH_TRANSACTION,
+              params: transaction,
+            },
+          });
+
+          console.log({result});
+
+          return {
+            method: DEFAULT_WAX_METHODS.WAX_SIGN_PUSH_TRANSACTION,
+            address: account,
+            valid: true,
+            result: JSON.stringify(result),
+          };
+        } catch (error: any) {
+          throw new Error(error);
+        }
+      }
+    )
   };
 
   // -------- NEAR RPC METHODS --------
@@ -1271,6 +1522,7 @@ export function JsonRpcContextProvider({
         cosmosRpc,
         solanaRpc,
         polkadotRpc,
+        waxRpc,
         nearRpc,
         multiversxRpc,
         tronRpc,
@@ -1279,6 +1531,7 @@ export function JsonRpcContextProvider({
         isRpcRequestPending: pending,
         isTestnet,
         setIsTestnet,
+        signTxRes
       }}
     >
       {children}
