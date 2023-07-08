@@ -20,12 +20,12 @@ export const WAXChainData: ChainsMap = {
 export const WAXMetadata: NamespaceMetadata = {
   // WAX Mainnet
   "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4": {
-    logo: "/assets/solana_logo.png",
+    logo: "/assets/wax-logo-512.png",
     rgb: "0, 0, 0",
   },
   // WAX Testnet
   "e0b5f2532f0f4fcc4da2fc440943131b2f041f5c522c09e9f2fd0b8ba74ef5b6": {
-    logo: "/assets/solana_logo.png",
+    logo: "/assets/wax-logo-512.png",
     rgb: "0, 0, 0",
   },
 };
